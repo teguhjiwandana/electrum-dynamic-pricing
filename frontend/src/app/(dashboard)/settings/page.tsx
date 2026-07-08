@@ -22,10 +22,8 @@ export default function SettingsPage() {
   } | null>(null);
 
   // Editable form values
-  const [basePrice, setBasePrice] = useState("14.50");
-  const [surgeCap, setSurgeCap] = useState("4.5");
-  const [minFare, setMinFare] = useState("12.00");
-  const [corpDiscount, setCorpDiscount] = useState("25");
+  const [basePrice, setBasePrice] = useState("6250");
+  const [surgeCap, setSurgeCap] = useState("2.0");
 
   useEffect(() => {
     async function load() {
@@ -254,19 +252,19 @@ export default function SettingsPage() {
                         Base Rate (Rp/hr)
                       </span>
                       <span className="label-mono bg-surface-container-low px-xs rounded">
-                        Rp {basePrice}
+                        Rp {Number(basePrice).toLocaleString()}
                       </span>
                     </label>
                     <input
                       type="range"
-                      min="1"
-                      max="50"
-                      step="0.01"
+                      min="1000"
+                      max="50000"
+                      step="500"
                       value={basePrice}
                       onChange={(e) => setBasePrice(e.target.value)}
                     />
                     <div className="flex justify-between text-xs text-on-surface-variant mt-2">
-                      <span>Rp 1</span>
+                      <span>Rp 1.000</span>
                       <span>Rp 50.000</span>
                     </div>
                   </div>
@@ -284,63 +282,30 @@ export default function SettingsPage() {
                     <input
                       type="range"
                       min="1"
-                      max="10"
+                      max="5"
                       step="0.5"
                       value={surgeCap}
                       onChange={(e) => setSurgeCap(e.target.value)}
                     />
                     <div className="flex justify-between text-xs text-on-surface-variant mt-2">
                       <span>1.0x</span>
-                      <span>10.0x</span>
+                      <span>5.0x</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-lg">
-                  {/* Minimum Fare */}
-                  <div>
-                    <label className="flex items-center justify-between mb-sm">
-                      <span className="body-md font-semibold text-on-surface">
-                        Minimum Fare Threshold
-                      </span>
-                      <span className="label-mono bg-surface-container-low px-xs rounded">
-                        Rp {minFare}
-                      </span>
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">
-                        Rp
-                      </span>
-                      <input
-                        className="input-field pl-8"
-                        type="number"
-                        value={minFare}
-                        onChange={(e) => setMinFare(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Corporate Discount */}
-                  <div>
-                    <label className="flex items-center justify-between mb-sm">
-                      <span className="body-md font-semibold text-on-surface">
-                        Corporate Discount Cap
-                      </span>
-                      <span className="label-mono bg-surface-container-low px-xs rounded">
-                        {corpDiscount}%
-                      </span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        className="input-field pr-8"
-                        type="number"
-                        value={corpDiscount}
-                        onChange={(e) => setCorpDiscount(e.target.value)}
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant">
-                        %
-                      </span>
-                    </div>
+                  {/* Config Info */}
+                  <div className="card-elevation rounded-lg p-lg bg-surface-container-low">
+                    <p className="body-sm font-semibold mb-sm">Current Config Summary</p>
+                    {config && (
+                      <div className="space-y-xs text-sm">
+                        <p><span className="text-on-surface-variant">Version:</span> <span className="label-mono">{config.version}</span></p>
+                        <p><span className="text-on-surface-variant">Base Rate:</span> <span className="label-mono">Rp {config.base_price_per_hour.toLocaleString()}/hr</span></p>
+                        <p><span className="text-on-surface-variant">Surge Cap:</span> <span className="label-mono">{config.surge_cap_multiplier}×</span></p>
+                        <p><span className="text-on-surface-variant">Updated:</span> <span className="label-mono">{new Date(config.updated_at).toLocaleString()}</span></p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
