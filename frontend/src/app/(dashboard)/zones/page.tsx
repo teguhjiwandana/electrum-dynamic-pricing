@@ -291,13 +291,10 @@ export default function ZonesPage() {
 /* Fallback demo data when API is unavailable */
 function getDemoZones(): ZoneInfo[] {
   return [
-    { name: "south-jakarta", utilization: 78 },
-    { name: "central-hub", utilization: 94 },
-    { name: "west-harbor", utilization: 22 },
-    { name: "north-industrial", utilization: 45 },
-    { name: "airport-terminal-1", utilization: 88 },
-    { name: "downtown-core", utilization: 65 },
-    { name: "east-riverside", utilization: 35 },
-    { name: "south-port", utilization: 52 },
+    { name: "South Jakarta", code: "south-jakarta", utilization: 85 },
+    { name: "Central Jakarta", code: "central-jakarta", utilization: 62 },
+    { name: "East Jakarta", code: "east-jakarta", utilization: 45 },
+    { name: "West Jakarta", code: "west-jakarta", utilization: 78 },
+    { name: "North Jakarta", code: "north-jakarta", utilization: 30 },
   ];
 }
