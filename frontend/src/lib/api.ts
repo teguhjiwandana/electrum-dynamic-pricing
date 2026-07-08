@@ -1,6 +1,7 @@
 /* ===== Electrum DPE API Client ===== */
 
-const DEFAULT_BASE_URL = "http://localhost:8080/api/v1";
+// Use relative URL — nginx proxies /api/v1/* to backend
+const DEFAULT_BASE_URL = "/api/v1";
 
 function getBaseUrl(): string {
   if (typeof window !== "undefined") {
@@ -68,14 +69,20 @@ async function request<T>(
       let errorMsg = `HTTP ${status}`;
       try {
         const errData = await res.json();
-        errorMsg = errData.error || errData.message || errorMsg;
+        errorMsg = errData.message || errData.error || errorMsg;
       } catch {
         // Could not parse error JSON
       }
       return { data: null, error: errorMsg, status };
     }
 
-    const data = await res.json();
+    // Handle empty responses (204)
+    const text = await res.text();
+    if (!text) {
+      return { data: null as T, error: null, status };
+    }
+
+    const data = JSON.parse(text);
     return { data, error: null, status };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Network error";
@@ -85,18 +92,11 @@ async function request<T>(
 
 /* ===== Auth ===== */
 
-export interface LoginPayload {
-  username: string;
-  password: string;
-}
-
 export interface LoginResult {
   token: string;
-  user?: {
-    id: string;
-    username: string;
-    role: string;
-  };
+  expires_at: number;
+  username: string;
+  role: string;
 }
 
 export async function login(
@@ -130,16 +130,20 @@ export interface PricingParams {
   duration_hours: number;
 }
 
+export interface PricingBreakdown {
+  base_rate_per_hour: number;
+  demand_multiplier: number;
+  zone_surge_factor: number;
+  battery_discount_factor: number;
+}
+
 export interface PricingResult {
   vehicle_id: string;
   zone: string;
   duration_hours: number;
   total_price: number;
-  base_rate: number;
-  demand_multiplier: number;
-  zone_surge: number;
-  battery_discount: number;
   currency: string;
+  breakdown: PricingBreakdown;
   calculated_at: string;
 }
 
@@ -156,6 +160,13 @@ export async function calculatePricing(
 
 /* ===== Audit Logs ===== */
 
+export interface AuditFactors {
+  base_rate_per_hour: number;
+  demand_multiplier: number;
+  zone_surge_factor: number;
+  battery_discount_factor: number;
+}
+
 export interface AuditLogEntry {
   id: string;
   timestamp: string;
@@ -163,85 +174,88 @@ export interface AuditLogEntry {
   zone: string;
   duration_hours: number;
   final_price: number;
-  factors: Record<string, number>;
-  user?: string;
+  factors_applied: AuditFactors;
+  config_version: number;
+  signature: string;
 }
 
-export interface AuditLogResponse {
-  entries: AuditLogEntry[];
+export interface PaginatedResponse<T> {
+  data: T[];
   total: number;
   page: number;
   page_size: number;
+  total_pages: number;
 }
 
 export async function getAuditLogs(
   page: number = 1,
   page_size: number = 20,
   filters?: { vehicle_id?: string; zone?: string }
-): Promise<ApiResponse<AuditLogResponse>> {
+): Promise<ApiResponse<PaginatedResponse<AuditLogEntry>>> {
   const query = new URLSearchParams({
     page: String(page),
     page_size: String(page_size),
   });
   if (filters?.vehicle_id) query.set("vehicle_id", filters.vehicle_id);
   if (filters?.zone) query.set("zone", filters.zone);
-  return request<AuditLogResponse>("GET", `/pricing/audit?${query.toString()}`);
+  return request<PaginatedResponse<AuditLogEntry>>(
+    "GET",
+    `/admin/pricing/audit?${query.toString()}`
+  );
 }
 
 /* ===== Config ===== */
 
-export interface PricingConfig {
-  version: string;
-  base_price: number;
-  surge_cap: number;
-  demand_multipliers: Record<string, number>;
-  zone_surge: Record<string, number>;
-  battery_discounts: Record<string, number>;
+export interface ConfigResult {
+  base_price_per_hour: number;
+  currency: string;
+  surge_cap_multiplier: number;
+  demand_multipliers: unknown;
+  zone_surge_config: unknown;
+  battery_discount_tiers: unknown;
+  version: number;
+  created_at: string;
   updated_at: string;
 }
 
 export interface ConfigHistoryEntry {
-  version: string;
-  updated_at: string;
-  summary: string;
+  version: number;
+  base_price_per_hour: number;
+  currency: string;
+  surge_cap_multiplier: number;
+  demand_multipliers: unknown;
+  zone_surge_config: unknown;
+  battery_discount_tiers: unknown;
+  created_at: string;
 }
 
-export async function getConfig(): Promise<ApiResponse<PricingConfig>> {
-  return request<PricingConfig>("GET", "/admin/config");
+export async function getConfig(): Promise<ApiResponse<ConfigResult>> {
+  return request<ConfigResult>("GET", "/admin/config");
 }
 
 export async function updateConfig(
-  data: Partial<PricingConfig>
-): Promise<ApiResponse<PricingConfig>> {
-  return request<PricingConfig>("PUT", "/admin/config", data);
+  data: Record<string, unknown>
+): Promise<ApiResponse<ConfigResult>> {
+  return request<ConfigResult>("PUT", "/admin/config", data);
 }
 
-export async function getConfigHistory(): Promise<
-  ApiResponse<ConfigHistoryEntry[]>
-> {
-  return request<ConfigHistoryEntry[]>("GET", "/admin/config/history");
+export async function getConfigHistory(
+  page: number = 1,
+  page_size: number = 10
+): Promise<ApiResponse<PaginatedResponse<ConfigHistoryEntry>>> {
+  return request<PaginatedResponse<ConfigHistoryEntry>>(
+    "GET",
+    `/admin/config/history?page=${page}&page_size=${page_size}`
+  );
 }
 
 /* ===== Zones ===== */
 
 export interface ZoneInfo {
-  id: string;
   name: string;
-  code: string;
   utilization: number;
-  status: "active" | "inactive" | "peak";
-  multiplier: number;
-  demand: "low" | "medium" | "high";
-  surge_threshold: number;
 }
 
-export interface ZonesSummary {
-  zones: ZoneInfo[];
-  total_active: number;
-  avg_multiplier: number;
-  high_demand_peak: number;
-}
-
-export async function getZones(): Promise<ApiResponse<ZonesSummary>> {
-  return request<ZonesSummary>("GET", "/zones");
+export async function getZones(): Promise<ApiResponse<ZoneInfo[]>> {
+  return request<ZoneInfo[]>("GET", "/zones");
 }
