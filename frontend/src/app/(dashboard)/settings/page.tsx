@@ -251,10 +251,10 @@ export default function SettingsPage() {
                   <div>
                     <label className="flex items-center justify-between mb-sm">
                       <span className="body-md font-semibold text-on-surface">
-                        Base Rate ($/hr)
+                        Base Rate (Rp/hr)
                       </span>
                       <span className="label-mono bg-surface-container-low px-xs rounded">
-                        ${basePrice}
+                        Rp {basePrice}
                       </span>
                     </label>
                     <input
@@ -266,8 +266,8 @@ export default function SettingsPage() {
                       onChange={(e) => setBasePrice(e.target.value)}
                     />
                     <div className="flex justify-between text-xs text-on-surface-variant mt-2">
-                      <span>$1.00</span>
-                      <span>$50.00</span>
+                      <span>Rp 1</span>
+                      <span>Rp 50.000</span>
                     </div>
                   </div>
 
@@ -304,12 +304,12 @@ export default function SettingsPage() {
                         Minimum Fare Threshold
                       </span>
                       <span className="label-mono bg-surface-container-low px-xs rounded">
-                        ${minFare}
+                        Rp {minFare}
                       </span>
                     </label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">
-                        $
+                        Rp
                       </span>
                       <input
                         className="input-field pl-8"
