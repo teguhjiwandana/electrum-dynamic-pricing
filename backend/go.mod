@@ -1,6 +1,6 @@
 module github.com/electrum/dynamic-pricing-engine
 
-go 1.26.2
+go 1.25.0
 
 require (
 	github.com/gin-gonic/gin v1.12.0
