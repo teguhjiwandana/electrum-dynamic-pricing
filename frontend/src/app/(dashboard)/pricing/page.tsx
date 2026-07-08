@@ -117,8 +117,8 @@ export default function PricingPage() {
                     <option value="south-jakarta">Loading zones...</option>
                   )}
                   {zones.map((z) => (
-                    <option key={z.name} value={z.name}>
-                      {z.name.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} ({Math.round(z.utilization)}% util)
+                    <option key={z.code} value={z.code}>
+                      {z.name} ({Math.round(z.utilization)}%)
                     </option>
                   ))}
                 </select>

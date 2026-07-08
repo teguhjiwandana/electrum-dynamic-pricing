@@ -253,6 +253,7 @@ export async function getConfigHistory(
 
 export interface ZoneInfo {
   name: string;
+  code: string;
   utilization: number;
 }
 

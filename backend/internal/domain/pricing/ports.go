@@ -50,6 +50,7 @@ type Vehicle struct {
 // Zone represents a geographic pricing zone with fleet utilization.
 type Zone struct {
 	Name        string  `json:"name"`
+	Code        string  `json:"code"`
 	Utilization float64 `json:"utilization"`
 }
 

@@ -21,12 +21,12 @@ func (r *zoneRepo) GetZone(ctx context.Context, zoneName string) (*pricing.Zone,
 	}
 
 	row := Pool.QueryRow(ctx,
-		`SELECT name, utilization FROM zone_utilization WHERE zone = $1`,
+		`SELECT name, zone, utilization FROM zone_utilization WHERE zone = $1`,
 		zoneName,
 	)
 
 	var z pricing.Zone
-	err := row.Scan(&z.Name, &z.Utilization)
+	err := row.Scan(&z.Name, &z.Code, &z.Utilization)
 	if err != nil {
 		if err.Error() == "no rows in result set" {
 			return nil, nil // not found
@@ -43,7 +43,7 @@ func (r *zoneRepo) ListZones(ctx context.Context) ([]pricing.Zone, error) {
 	}
 
 	rows, err := Pool.Query(ctx,
-		`SELECT name, utilization FROM zone_utilization ORDER BY name`,
+		`SELECT name, zone, utilization FROM zone_utilization ORDER BY name`,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("list zones: %w", err)
@@ -53,7 +53,7 @@ func (r *zoneRepo) ListZones(ctx context.Context) ([]pricing.Zone, error) {
 	var zones []pricing.Zone
 	for rows.Next() {
 		var z pricing.Zone
-		if err := rows.Scan(&z.Name, &z.Utilization); err != nil {
+		if err := rows.Scan(&z.Name, &z.Code, &z.Utilization); err != nil {
 			return nil, fmt.Errorf("scan zone: %w", err)
 		}
 		zones = append(zones, z)
