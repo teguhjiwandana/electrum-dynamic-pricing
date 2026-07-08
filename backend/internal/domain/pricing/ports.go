@@ -14,6 +14,7 @@ import (
 // VehicleLookup retrieves a vehicle by its ID.
 type VehicleLookup interface {
 	GetVehicle(ctx context.Context, vehicleID string) (*Vehicle, error)
+	ListVehicles(ctx context.Context) ([]Vehicle, error)
 }
 
 // ZoneLookup retrieves zone utilization data.

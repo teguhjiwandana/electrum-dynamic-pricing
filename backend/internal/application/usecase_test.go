@@ -14,11 +14,19 @@ import (
 // ---------------------------------------------------------------------------
 
 type mockVehicleRepo struct {
-	getVehicleFn func(ctx context.Context, id string) (*pricing.Vehicle, error)
+	getVehicleFn  func(ctx context.Context, id string) (*pricing.Vehicle, error)
+	listVehiclesFn func(ctx context.Context) ([]pricing.Vehicle, error)
 }
 
 func (m *mockVehicleRepo) GetVehicle(ctx context.Context, id string) (*pricing.Vehicle, error) {
 	return m.getVehicleFn(ctx, id)
+}
+
+func (m *mockVehicleRepo) ListVehicles(ctx context.Context) ([]pricing.Vehicle, error) {
+	if m.listVehiclesFn != nil {
+		return m.listVehiclesFn(ctx)
+	}
+	return nil, nil
 }
 
 type mockZoneRepo struct {

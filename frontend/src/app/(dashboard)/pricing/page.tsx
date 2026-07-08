@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
-import { calculatePricing, getZones, getConfig, PricingResult, PricingParams, ZoneInfo, ConfigResult } from "@/lib/api";
+import { calculatePricing, getZones, getVehicles, getConfig, PricingResult, PricingParams, ZoneInfo, VehicleInfo, ConfigResult } from "@/lib/api";
 import { clsx } from "clsx";
 
 export default function PricingPage() {
@@ -12,11 +12,15 @@ export default function PricingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [zones, setZones] = useState<ZoneInfo[]>([]);
+  const [vehicles, setVehicles] = useState<VehicleInfo[]>([]);
   const [config, setConfig] = useState<ConfigResult | null>(null);
 
   useEffect(() => {
     getZones().then((res) => {
       if (res.data) setZones(res.data);
+    });
+    getVehicles().then((res) => {
+      if (res.data) setVehicles(res.data);
     });
     getConfig().then((res) => {
       if (res.data) setConfig(res.data);
@@ -103,12 +107,21 @@ export default function PricingPage() {
             </div>
 
             <form onSubmit={handleCalculate} className="space-y-md">
-              {/* Vehicle ID */}
+              {/* Vehicle */}
               <div>
                 <label htmlFor="vehicleId" className="label-mono text-on-surface-variant uppercase block mb-xs">
-                  Vehicle ID
+                  Vehicle
                 </label>
-                <input id="vehicleId" type="text" value={vehicleId} onChange={(e) => setVehicleId(e.target.value)} className="input-field" placeholder="EV-10001" />
+                <select id="vehicleId" value={vehicleId} onChange={(e) => setVehicleId(e.target.value)} className="input-field bg-white">
+                  {vehicles.length === 0 && (
+                    <option value="EV-10001">Loading vehicles...</option>
+                  )}
+                  {vehicles.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.id} — {v.model} (SoC: {v.soc}%)
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Zone */}

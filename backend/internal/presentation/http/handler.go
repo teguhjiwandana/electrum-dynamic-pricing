@@ -169,6 +169,20 @@ func (h *Handler) GetZones(c *gin.Context) {
 	Success(c, http.StatusOK, zones)
 }
 
+// GetVehicles returns all vehicles.
+func (h *Handler) GetVehicles(c *gin.Context) {
+	vehicles, err := h.uc.ListVehicles(c.Request.Context())
+	if err != nil {
+		Error(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if vehicles == nil {
+		vehicles = []pricing.Vehicle{}
+	}
+	Success(c, http.StatusOK, vehicles)
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------

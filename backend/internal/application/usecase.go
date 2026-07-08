@@ -303,3 +303,8 @@ func (uc *PricingUseCase) GetAuditLogs(ctx context.Context, page, pageSize int, 
 func (uc *PricingUseCase) ListZones(ctx context.Context) ([]pricing.Zone, error) {
 	return uc.zoneRepo.ListZones(ctx)
 }
+
+// ListVehicles returns all vehicles.
+func (uc *PricingUseCase) ListVehicles(ctx context.Context) ([]pricing.Vehicle, error) {
+	return uc.vehicleRepo.ListVehicles(ctx)
+}

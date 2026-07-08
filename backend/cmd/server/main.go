@@ -142,6 +142,12 @@ func main() {
 		{
 			zonesGroup.GET("", handler.GetZones)
 		}
+
+		// Vehicles (public read-only)
+		vehiclesGroup := v1.Group("/vehicles")
+		{
+			vehiclesGroup.GET("", handler.GetVehicles)
+		}
 	}
 
 	// -----------------------------------------------------------------------

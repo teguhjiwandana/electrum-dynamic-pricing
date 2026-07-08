@@ -264,3 +264,16 @@ export interface ZoneInfo {
 export async function getZones(): Promise<ApiResponse<ZoneInfo[]>> {
   return request<ZoneInfo[]>("GET", "/zones");
 }
+
+/* ===== Vehicles ===== */
+
+export interface VehicleInfo {
+  id: string;
+  zone: string;
+  soc: number;
+  model: string;
+}
+
+export async function getVehicles(): Promise<ApiResponse<VehicleInfo[]>> {
+  return request<VehicleInfo[]>("GET", "/vehicles");
+}
