@@ -1,0 +1,40 @@
+{
+  "base_price_per_hour": 6250,
+  "currency": "IDR",
+  "surge_cap_multiplier": 2.0,
+  "demand_multipliers": {
+    "weekday_peak": {
+      "days": [1, 2, 3, 4, 5],
+      "hours": [17, 18, 19],
+      "multiplier": 1.3
+    },
+    "weekday_offpeak": {
+      "days": [1, 2, 3, 4, 5],
+      "hours": [0, 1, 2, 3, 4],
+      "multiplier": 0.8
+    },
+    "weekend_peak": {
+      "days": [6, 0],
+      "hours": [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+      "multiplier": 1.2
+    },
+    "default": {
+      "multiplier": 1.0
+    }
+  },
+  "zone_surge_config": {
+    "thresholds": [
+      {"max_utilization": 50, "factor": 1.0},
+      {"max_utilization": 80, "factor": 1.2},
+      {"max_utilization": 100, "factor": 1.5}
+    ]
+  },
+  "battery_discount_tiers": {
+    "thresholds": [
+      {"max_soc": 40, "discount_factor": 0.85},
+      {"max_soc": 60, "discount_factor": 0.92},
+      {"max_soc": 80, "discount_factor": 0.97},
+      {"max_soc": 100, "discount_factor": 1.0}
+    ]
+  }
+}

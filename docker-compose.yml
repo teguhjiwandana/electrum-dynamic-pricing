@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: electrum
+      POSTGRES_PASSWORD: electrum_secret
+      POSTGRES_DB: electrum_pricing
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/internal/infrastructure/postgres/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U electrum -d electrum_pricing"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: "postgres://electrum:electrum_secret@db:5432/electrum_pricing?sslmode=disable"
+      JWT_SECRET: "electrum-jwt-secret-change-in-production"
+      AUDIT_HMAC_KEY: "electrum-audit-hmac-key-change-in-production"
+      CONFIG_PATH: "/app/config/pricing_config.json"
+      SERVER_PORT: "8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/config:/app/config
+
+volumes:
+  pgdata:

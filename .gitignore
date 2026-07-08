@@ -1,0 +1,28 @@
+# Go
+backend/vendor/
+backend/*.exe
+backend/*.test
+backend/*.out
+backend/.env
+
+# Node
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+pgdata/
+
+# Stitch design reference (not part of source)
+stitch_dynamic_pricing_engine_dashboard/
