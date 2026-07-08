@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: electrum_secret
       POSTGRES_DB: electrum_pricing
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./backend/internal/infrastructure/postgres/migrations:/docker-entrypoint-initdb.d
