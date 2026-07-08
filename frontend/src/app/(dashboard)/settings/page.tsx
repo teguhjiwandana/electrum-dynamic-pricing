@@ -150,8 +150,8 @@ export default function SettingsPage() {
       <div className="grid grid-cols-12 gap-gutter">
         {/* Left Column: Profile + System */}
         <section className="col-span-12 lg:col-span-4 flex flex-col gap-gutter">
-          {/* Profile */}
-          <div className="card-elevation card-elevation-hover rounded-xl p-lg border-l-4 border-primary">
+          {/* Admin Info */}
+          <div className="card-elevation rounded-xl p-lg border-l-4 border-primary">
             <div className="flex items-center gap-md mb-lg">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -168,51 +168,22 @@ export default function SettingsPage() {
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
-              <h3 className="title-md">Profile</h3>
+              <h3 className="title-md">Admin Account</h3>
             </div>
-            <form className="space-y-md">
-              <div>
-                <label className="label-mono text-on-surface-variant uppercase block mb-xs">
-                  Full Name
-                </label>
-                <input
-                  className="input-field"
-                  type="text"
-                  defaultValue="Marcus Chen"
-                />
+            <div className="space-y-sm">
+              <div className="flex justify-between py-xs border-b border-outline-variant">
+                <span className="body-sm text-on-surface-variant">Username</span>
+                <span className="body-sm font-semibold">admin</span>
               </div>
-              <div>
-                <label className="label-mono text-on-surface-variant uppercase block mb-xs">
-                  Email Address
-                </label>
-                <input
-                  className="input-field"
-                  type="email"
-                  defaultValue="marcus.chen@electrum.io"
-                />
+              <div className="flex justify-between py-xs border-b border-outline-variant">
+                <span className="body-sm text-on-surface-variant">Role</span>
+                <span className="badge-success">Admin</span>
               </div>
-              <div className="pt-md border-t border-outline-variant">
-                <h4 className="body-sm font-semibold mb-sm">Change Password</h4>
-                <div className="space-y-sm">
-                  <input
-                    className="input-field"
-                    type="password"
-                    placeholder="Current Password"
-                  />
-                  <input
-                    className="input-field"
-                    type="password"
-                    placeholder="New Password"
-                  />
-                </div>
+              <div className="flex justify-between py-xs">
+                <span className="body-sm text-on-surface-variant">Config Version</span>
+                <span className="label-mono text-primary">v{config?.version || "—"}</span>
               </div>
-              <button
-                type="button"
-                className="btn-primary w-full py-md mt-md"
-              >
-                Update Profile
-              </button>
-            </form>
+            </div>
           </div>
 
           {/* Current Config JSON Viewer */}
