@@ -230,7 +230,7 @@ export interface ConfigHistoryEntry {
 }
 
 export async function getConfig(): Promise<ApiResponse<ConfigResult>> {
-  return request<ConfigResult>("GET", "/admin/config");
+  return request<ConfigResult>("GET", "/config");
 }
 
 export async function updateConfig(

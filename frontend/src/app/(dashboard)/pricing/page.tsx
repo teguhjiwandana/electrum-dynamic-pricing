@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
-import { calculatePricing, getZones, PricingResult, PricingParams, ZoneInfo } from "@/lib/api";
+import { calculatePricing, getZones, getConfig, PricingResult, PricingParams, ZoneInfo, ConfigResult } from "@/lib/api";
 import { clsx } from "clsx";
 
 export default function PricingPage() {
@@ -12,11 +12,15 @@ export default function PricingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [zones, setZones] = useState<ZoneInfo[]>([]);
+  const [config, setConfig] = useState<ConfigResult | null>(null);
 
   useEffect(() => {
     getZones().then((res) => {
       if (res.data) setZones(res.data);
     });
+    getConfig().then((res) => {
+      if (res.data) setConfig(res.data);
+    }).catch(() => {});
   }, []);
 
   async function handleCalculate(e?: FormEvent) {
@@ -62,14 +66,14 @@ export default function PricingPage() {
           <p className="label-mono text-on-surface-variant uppercase mb-xs">
             Base Rate
           </p>
-          <p className="headline-lg text-primary">Rp 6.250</p>
+          <p className="headline-lg text-primary">Rp {config ? config.base_price_per_hour.toLocaleString() : "6.250"}</p>
           <p className="body-sm text-on-surface-variant mt-xs">Per hour</p>
         </div>
         <div className="card-elevation rounded-xl p-lg metric-accent-secondary">
           <p className="label-mono text-on-surface-variant uppercase mb-xs">
             Surge Cap
           </p>
-          <p className="headline-lg text-primary">2.0×</p>
+          <p className="headline-lg text-primary">{config ? config.surge_cap_multiplier : 2.0}×</p>
           <p className="body-sm text-on-surface-variant mt-xs">Max multiplier</p>
         </div>
         <div className="card-elevation rounded-xl p-lg metric-accent-tertiary">

@@ -121,11 +121,17 @@ func main() {
 			pricingGroup.GET("/breakdown", handler.GetBreakdown)
 		}
 
+		// Config (read = JWT only, write = admin)
+		configGroup := v1.Group("/config")
+		configGroup.Use(presentation.AuthMiddleware(jwtSvc))
+		{
+			configGroup.GET("", handler.GetConfig)
+		}
+
 		// Protected: admin (requires JWT + admin role)
 		adminGroup := v1.Group("/admin")
 		adminGroup.Use(presentation.AuthMiddleware(jwtSvc), presentation.AdminMiddleware())
 		{
-			adminGroup.GET("/config", handler.GetConfig)
 			adminGroup.PUT("/config", handler.UpdateConfig)
 			adminGroup.GET("/config/history", handler.GetConfigHistory)
 			adminGroup.GET("/pricing/audit", handler.GetAuditLogs)
