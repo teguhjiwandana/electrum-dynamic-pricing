@@ -249,6 +249,10 @@ func (uc *PricingUseCase) GetConfigHistory(ctx context.Context, page, pageSize i
 		return nil, err
 	}
 
+	if history == nil {
+		history = []pricing.PricingConfig{}
+	}
+
 	totalPages := int(math.Ceil(float64(total) / float64(pageSize)))
 	if totalPages < 1 {
 		totalPages = 1
@@ -275,6 +279,10 @@ func (uc *PricingUseCase) GetAuditLogs(ctx context.Context, page, pageSize int, 
 	entries, total, err := uc.auditRepo.List(ctx, page, pageSize, vehicleID, zone)
 	if err != nil {
 		return nil, err
+	}
+
+	if entries == nil {
+		entries = []pricing.AuditEntry{}
 	}
 
 	totalPages := int(math.Ceil(float64(total) / float64(pageSize)))

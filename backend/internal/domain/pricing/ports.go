@@ -41,44 +41,44 @@ type AuditRecorder interface {
 
 // Vehicle represents a rented EV unit.
 type Vehicle struct {
-	ID    string
-	Zone  string
-	SoC   float64 // 0–100
-	Model string
+	ID    string  `json:"id"`
+	Zone  string  `json:"zone"`
+	SoC   float64 `json:"soc"`
+	Model string  `json:"model"`
 }
 
 // Zone represents a geographic pricing zone with fleet utilization.
 type Zone struct {
-	Name        string
-	Utilization float64 // 0–100
+	Name        string  `json:"name"`
+	Utilization float64 `json:"utilization"`
 }
 
 // PricingConfig holds the active pricing rules. This is the aggregate root
 // for the configuration bounded context, eagerly parsed (no json.RawMessage).
 type PricingConfig struct {
-	BasePricePerHour float64
-	Currency         string
-	SurgeCap         float64
-	DemandRules      DemandMultipliers
-	ZoneSurge        ZoneSurgeConfig
-	BatteryDiscounts BatteryDiscountTiers
-	Version          int
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
+	BasePricePerHour float64             `json:"base_price_per_hour"`
+	Currency         string              `json:"currency"`
+	SurgeCap         float64             `json:"surge_cap_multiplier"`
+	DemandRules      DemandMultipliers   `json:"demand_multipliers"`
+	ZoneSurge        ZoneSurgeConfig     `json:"zone_surge_config"`
+	BatteryDiscounts BatteryDiscountTiers `json:"battery_discount_tiers"`
+	Version          int                 `json:"version"`
+	CreatedAt        time.Time           `json:"created_at"`
+	UpdatedAt        time.Time           `json:"updated_at"`
 }
 
 // AuditEntry records a pricing calculation event. Tamper-evident via HMAC.
 type AuditEntry struct {
-	ID            string
-	Timestamp     time.Time
-	VehicleID     string
-	Zone          string
-	DurationHours int
-	InputData     map[string]interface{}
-	Factors       PricingFactors
-	FinalPrice    float64
-	ConfigVersion int
-	Signature     string
+	ID            string                 `json:"id"`
+	Timestamp     time.Time              `json:"timestamp"`
+	VehicleID     string                 `json:"vehicle_id"`
+	Zone          string                 `json:"zone"`
+	DurationHours int                    `json:"duration_hours"`
+	InputData     map[string]interface{} `json:"input_data"`
+	Factors       PricingFactors         `json:"factors_applied"`
+	FinalPrice    float64                `json:"final_price"`
+	ConfigVersion int                    `json:"config_version"`
+	Signature     string                 `json:"signature"`
 }
 
 // PricingFactors captures the multipliers used in a calculation.
@@ -91,18 +91,18 @@ type PricingFactors struct {
 
 // PricingInput carries the raw request data for a calculation.
 type PricingInput struct {
-	VehicleID     string
-	Zone          string
-	DurationHours int
+	VehicleID     string `json:"vehicle_id"`
+	Zone          string `json:"zone"`
+	DurationHours int    `json:"duration_hours"`
 }
 
 // PricingOutput carries the calculated result with breakdown.
 type PricingOutput struct {
-	VehicleID     string
-	Zone          string
-	DurationHours int
-	TotalPrice    float64
-	Currency      string
-	Factors       PricingFactors
-	CalculatedAt  time.Time
+	VehicleID     string          `json:"vehicle_id"`
+	Zone          string          `json:"zone"`
+	DurationHours int             `json:"duration_hours"`
+	TotalPrice    float64         `json:"total_price"`
+	Currency      string          `json:"currency"`
+	Factors       PricingFactors  `json:"breakdown"`
+	CalculatedAt  time.Time       `json:"calculated_at"`
 }
