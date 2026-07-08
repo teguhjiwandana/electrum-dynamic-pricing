@@ -131,9 +131,8 @@ func main() {
 			adminGroup.GET("/pricing/audit", handler.GetAuditLogs)
 		}
 
-		// Zones (protected)
+		// Zones (public read-only)
 		zonesGroup := v1.Group("/zones")
-		zonesGroup.Use(presentation.AuthMiddleware(jwtSvc))
 		{
 			zonesGroup.GET("", handler.GetZones)
 		}
