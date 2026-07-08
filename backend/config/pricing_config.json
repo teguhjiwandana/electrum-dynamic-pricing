@@ -3,24 +3,12 @@
   "currency": "IDR",
   "surge_cap_multiplier": 2.0,
   "demand_multipliers": {
-    "weekday_peak": {
-      "days": [1, 2, 3, 4, 5],
-      "hours": [17, 18, 19],
-      "multiplier": 1.3
-    },
-    "weekday_offpeak": {
-      "days": [1, 2, 3, 4, 5],
-      "hours": [0, 1, 2, 3, 4],
-      "multiplier": 0.8
-    },
-    "weekend_peak": {
-      "days": [6, 0],
-      "hours": [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
-      "multiplier": 1.2
-    },
-    "default": {
-      "multiplier": 1.0
-    }
+    "default": 1.0,
+    "rules": [
+      {"days": [1,2,3,4,5], "hours": [17,18,19], "multiplier": 1.3},
+      {"days": [1,2,3,4,5], "hours": [0,1,2,3,4], "multiplier": 0.8},
+      {"days": [6,0], "hours": [9,10,11,12,13,14,15,16,17,18,19,20,21], "multiplier": 1.2}
+    ]
   },
   "zone_surge_config": {
     "thresholds": [

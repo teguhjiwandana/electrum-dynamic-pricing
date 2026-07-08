@@ -84,7 +84,7 @@ VALUES (
 ) ON CONFLICT DO NOTHING;
 
 INSERT INTO users (username, password_hash, role)
-VALUES ('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'admin')
+VALUES ('admin', '$2a$10$Ghtl3qUqCIwRjoiZRcsUiejcxhGsAO.XSe69vQGbl2mVofhuHy5B6', 'admin')
 ON CONFLICT (username) DO NOTHING;
 
 INSERT INTO vehicles (id, zone, soc, model) VALUES
