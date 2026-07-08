@@ -2,9 +2,14 @@ package application
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"math"
+	"os"
 	"time"
 
 	"github.com/electrum/dynamic-pricing-engine/internal/domain/pricing"
@@ -116,7 +121,9 @@ func (uc *PricingUseCase) CalculatePrice(ctx context.Context, input pricing.Pric
 	}
 
 	// Audit
+	auditID, _ := newUUID()
 	auditEntry := &pricing.AuditEntry{
+		ID:            auditID,
 		Timestamp:     now,
 		VehicleID:     input.VehicleID,
 		Zone:          input.Zone,
@@ -132,6 +139,7 @@ func (uc *PricingUseCase) CalculatePrice(ctx context.Context, input pricing.Pric
 		FinalPrice:    output.TotalPrice,
 		ConfigVersion: cfg.Version,
 	}
+	auditEntry.Signature = signAuditEntry(auditEntry)
 	_ = uc.auditRepo.Record(ctx, auditEntry) // fire-and-forget, best-effort
 
 	return &CalculatePriceResponse{
@@ -307,4 +315,34 @@ func (uc *PricingUseCase) ListZones(ctx context.Context) ([]pricing.Zone, error)
 // ListVehicles returns all vehicles.
 func (uc *PricingUseCase) ListVehicles(ctx context.Context) ([]pricing.Vehicle, error) {
 	return uc.vehicleRepo.ListVehicles(ctx)
+}
+
+// ---------------------------------------------------------------------------
+// Audit helpers
+// ---------------------------------------------------------------------------
+
+func newUUID() (string, error) {
+	b := make([]byte, 16)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	b[6] = (b[6] & 0x0f) | 0x40
+	b[8] = (b[8] & 0x3f) | 0x80
+	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
+		b[0:4], b[4:6], b[6:8], b[8:10], b[10:16]), nil
+}
+
+func signAuditEntry(entry *pricing.AuditEntry) string {
+	key := os.Getenv("AUDIT_HMAC_KEY")
+	if key == "" {
+		key = "electrum-audit-hmac-key"
+	}
+	payload := fmt.Sprintf("%s|%s|%d|%.2f|%d|%s",
+		entry.VehicleID, entry.Zone, entry.DurationHours,
+		entry.FinalPrice, entry.ConfigVersion,
+		entry.Timestamp.Format(time.RFC3339),
+	)
+	mac := hmac.New(sha256.New, []byte(key))
+	mac.Write([]byte(payload))
+	return hex.EncodeToString(mac.Sum(nil))
 }
