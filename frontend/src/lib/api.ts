@@ -109,6 +109,10 @@ export async function login(
   });
   if (result.data?.token) {
     setToken(result.data.token);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("auth_username", result.data.username);
+      localStorage.setItem("auth_role", result.data.role);
+    }
   }
   return result;
 }

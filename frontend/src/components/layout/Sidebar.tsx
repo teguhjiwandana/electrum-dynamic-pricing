@@ -21,6 +21,24 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
 
+  const username =
+    typeof window !== "undefined"
+      ? localStorage.getItem("auth_username") || "User"
+      : "User";
+  const role =
+    typeof window !== "undefined"
+      ? localStorage.getItem("auth_role") || "viewer"
+      : "viewer";
+
+  const initials = username
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
+  const roleLabel = role === "admin" ? "Administrator" : "Viewer";
+
   return (
     <aside className="w-[280px] h-screen fixed left-0 top-0 bg-surface-container-lowest flex flex-col py-lg px-md z-50 border-r border-outline-variant/20 shadow-sm">
       {/* Brand Header */}
@@ -32,7 +50,7 @@ export default function Sidebar() {
           Electrum DPE
         </Link>
         <p className="body-sm text-on-surface-variant opacity-70 mt-xs">
-          Enterprise Admin
+          Dynamic Pricing Engine
         </p>
       </div>
 
@@ -76,14 +94,14 @@ export default function Sidebar() {
       {/* User Profile */}
       <div className="mt-auto pt-lg border-t border-outline-variant/30 flex items-center gap-md px-xs">
         <div className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center shrink-0">
-          <span className="label-mono text-primary font-bold">MC</span>
+          <span className="label-mono text-primary font-bold">{initials}</span>
         </div>
         <div className="flex flex-col min-w-0">
           <span className="button-text text-on-surface truncate">
-            Marcus Chen
+            {username}
           </span>
           <span className="body-sm text-on-surface-variant truncate">
-            Senior Analyst
+            {roleLabel}
           </span>
         </div>
       </div>
