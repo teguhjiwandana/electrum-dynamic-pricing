@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getAuditLogs, AuditLogEntry } from "@/lib/api";
+import { getAuditLogs, AuditLogEntry, AuditFactors } from "@/lib/api";
 import { clsx } from "clsx";
 
 export default function AuditPage() {
@@ -26,9 +26,9 @@ export default function AuditPage() {
     const res = await getAuditLogs(page, pageSize, filters);
 
     if (res.data) {
-      setEntries(res.data.entries);
+      setEntries(res.data.data);
       setTotal(res.data.total);
-      setTotalPages(Math.ceil(res.data.total / pageSize));
+      setTotalPages(res.data.total_pages);
     } else {
       setError(res.error || "Failed to load audit logs");
       setEntries([]);
@@ -49,7 +49,7 @@ export default function AuditPage() {
     }
   }
 
-  function formatFactors(factors: Record<string, number>): string {
+  function formatFactors(factors: AuditFactors): string {
     return Object.entries(factors)
       .map(([k, v]) => `${k}: ${v}`)
       .join(", ");
@@ -270,12 +270,12 @@ export default function AuditPage() {
                         className="label-mono text-primary font-bold"
                         style={{ fontSize: "14px" }}
                       >
-                        ${entry.final_price.toFixed(2)}
+                        Rp {entry.final_price.toFixed(2)}
                       </span>
                     </td>
                     <td className="px-lg py-md">
                       <span className="body-sm text-on-surface-variant max-w-[200px] truncate block">
-                        {formatFactors(entry.factors)}
+                        {formatFactors(entry.factors_applied)}
                       </span>
                     </td>
                   </tr>

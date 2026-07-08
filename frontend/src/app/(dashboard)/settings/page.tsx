@@ -5,13 +5,13 @@ import {
   getConfig,
   updateConfig,
   getConfigHistory,
-  PricingConfig,
+  ConfigResult,
   ConfigHistoryEntry,
 } from "@/lib/api";
 import { clsx } from "clsx";
 
 export default function SettingsPage() {
-  const [config, setConfig] = useState<PricingConfig | null>(null);
+  const [config, setConfig] = useState<ConfigResult | null>(null);
   const [history, setHistory] = useState<ConfigHistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -37,14 +37,14 @@ export default function SettingsPage() {
 
       if (configRes.data) {
         setConfig(configRes.data);
-        setBasePrice(configRes.data.base_price.toFixed(2));
-        setSurgeCap(configRes.data.surge_cap.toFixed(1));
+        setBasePrice(configRes.data.base_price_per_hour.toFixed(2));
+        setSurgeCap(configRes.data.surge_cap_multiplier.toFixed(1));
       } else if (configRes.error) {
         setError(configRes.error);
       }
 
       if (historyRes.data) {
-        setHistory(historyRes.data);
+        setHistory(historyRes.data.data);
       }
 
       setLoading(false);
@@ -58,8 +58,12 @@ export default function SettingsPage() {
     setError(null);
 
     const res = await updateConfig({
-      base_price: parseFloat(basePrice),
-      surge_cap: parseFloat(surgeCap),
+      base_price_per_hour: parseFloat(basePrice),
+      currency: "IDR",
+      surge_cap_multiplier: parseFloat(surgeCap),
+      demand_multipliers: config?.demand_multipliers || {},
+      zone_surge_config: config?.zone_surge_config || {},
+      battery_discount_tiers: config?.battery_discount_tiers || {},
     });
 
     if (res.data) {
@@ -408,8 +412,8 @@ export default function SettingsPage() {
                   className="btn-secondary px-xl py-md"
                   onClick={() => {
                     if (config) {
-                      setBasePrice(config.base_price.toFixed(2));
-                      setSurgeCap(config.surge_cap.toFixed(1));
+                      setBasePrice(config.base_price_per_hour.toFixed(2));
+                      setSurgeCap(config.surge_cap_multiplier.toFixed(1));
                     }
                   }}
                 >
@@ -481,14 +485,14 @@ export default function SettingsPage() {
                   >
                     <div>
                       <span className="label-mono text-on-surface block">
-                        {item.version}
+                        v{item.version}
                       </span>
                       <span className="body-sm text-on-surface-variant">
-                        {item.summary}
+                        Base: {item.base_price_per_hour}
                       </span>
                     </div>
                     <span className="label-mono text-on-surface-variant">
-                      {new Date(item.updated_at).toLocaleDateString()}
+                      {new Date(item.created_at).toLocaleDateString()}
                     </span>
                   </div>
                 ))}

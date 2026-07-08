@@ -6,14 +6,9 @@ import { clsx } from "clsx";
 
 export default function ZonesPage() {
   const [zones, setZones] = useState<ZoneInfo[]>([]);
-  const [summary, setSummary] = useState<{
-    total_active: number;
-    avg_multiplier: number;
-    high_demand_peak: number;
-  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"all" | "active" | "peak">("all");
+  const [filter, setFilter] = useState<"all" | "low" | "high">("all");
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   useEffect(() => {
@@ -22,21 +17,10 @@ export default function ZonesPage() {
       setError(null);
       const res = await getZones();
       if (res.data) {
-        setZones(res.data.zones);
-        setSummary({
-          total_active: res.data.total_active,
-          avg_multiplier: res.data.avg_multiplier,
-          high_demand_peak: res.data.high_demand_peak,
-        });
+        setZones(res.data);
       } else {
         setError(res.error || "Failed to load zones");
-        // Fallback demo data
         setZones(getDemoZones());
-        setSummary({
-          total_active: 142,
-          avg_multiplier: 1.45,
-          high_demand_peak: 2.8,
-        });
       }
       setLoading(false);
     }
@@ -46,27 +30,14 @@ export default function ZonesPage() {
   const filteredZones =
     filter === "all"
       ? zones
-      : filter === "active"
-        ? zones.filter((z) => z.status === "active")
-        : zones.filter((z) => z.status === "peak" || z.demand === "high");
+      : filter === "low"
+        ? zones.filter((z) => z.utilization < 50)
+        : zones.filter((z) => z.utilization >= 80);
 
   function getUtilColor(pct: number): string {
     if (pct < 50) return "util-bar-green";
     if (pct <= 80) return "util-bar-amber";
     return "util-bar-red";
-  }
-
-  function getStatusBadge(status: string) {
-    switch (status) {
-      case "active":
-        return "badge-success";
-      case "peak":
-        return "badge-error";
-      case "inactive":
-        return "badge-neutral";
-      default:
-        return "badge-neutral";
-    }
   }
 
   if (loading) {
@@ -98,106 +69,6 @@ export default function ZonesPage() {
 
   return (
     <div className="space-y-gutter">
-      {/* KPI Cards */}
-      {summary && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-xl">
-          <div className="card-elevation rounded-xl p-lg border-l-4 border-primary group transition-all duration-300">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="label-mono text-on-surface-variant uppercase mb-xs">
-                  Active Zones
-                </p>
-                <h3
-                  className="headline-lg text-on-surface"
-                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                >
-                  {summary.total_active}
-                </h3>
-              </div>
-              <div className="bg-primary-fixed p-sm rounded-lg text-primary">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="card-elevation rounded-xl p-lg border-l-4 border-secondary-container group transition-all duration-300">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="label-mono text-on-surface-variant uppercase mb-xs">
-                  Avg. Multiplier
-                </p>
-                <h3
-                  className="headline-lg text-on-surface"
-                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                >
-                  {summary.avg_multiplier.toFixed(2)}x
-                </h3>
-              </div>
-              <div className="bg-secondary-fixed p-sm rounded-lg text-secondary">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                  <polyline points="17 6 23 6 23 12" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="card-elevation rounded-xl p-lg border-l-4 border-tertiary group transition-all duration-300">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="label-mono text-on-surface-variant uppercase mb-xs">
-                  High Demand Peak
-                </p>
-                <h3
-                  className="headline-lg text-on-surface"
-                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                >
-                  {summary.high_demand_peak.toFixed(1)}x
-                </h3>
-              </div>
-              <div className="bg-tertiary-fixed p-sm rounded-lg text-tertiary">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Error Banner */}
       {error && (
         <div className="card-elevation rounded-xl p-lg border-l-4 border-error bg-error-container/30 mb-gutter">
@@ -211,7 +82,7 @@ export default function ZonesPage() {
       <div className="flex items-center justify-between mb-lg">
         <h4 className="title-md">Zone Directory</h4>
         <div className="flex bg-surface-container p-1 rounded-lg">
-          {(["all", "active", "peak"] as const).map((f) => (
+          {(["all", "low", "high"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
@@ -222,7 +93,7 @@ export default function ZonesPage() {
                   : "text-on-surface-variant hover:text-on-surface"
               )}
             >
-              {f === "all" ? "All Zones" : f === "active" ? "Active Only" : "High Demand"}
+              {f === "all" ? "All Zones" : f === "low" ? "Low Utilization" : "High Utilization"}
             </button>
           ))}
         </div>
@@ -232,7 +103,7 @@ export default function ZonesPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-gutter">
         {filteredZones.map((zone) => (
           <div
-            key={zone.id}
+            key={zone.name}
             className="card-elevation rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
           >
             {/* Zone Image Placeholder */}
@@ -253,8 +124,21 @@ export default function ZonesPage() {
                 <circle cx="12" cy="10" r="3" />
               </svg>
               <div className="absolute top-md right-md">
-                <span className={clsx(getStatusBadge(zone.status), "uppercase")}>
-                  {zone.status}
+                <span
+                  className={clsx(
+                    "uppercase label-mono",
+                    zone.utilization >= 80
+                      ? "badge-error"
+                      : zone.utilization >= 50
+                        ? "badge-success"
+                        : "badge-neutral"
+                  )}
+                >
+                  {zone.utilization >= 80
+                    ? "peak"
+                    : zone.utilization >= 50
+                      ? "active"
+                      : "low"}
                 </span>
               </div>
             </div>
@@ -263,16 +147,13 @@ export default function ZonesPage() {
             <div className="p-md flex-1">
               <div className="flex justify-between items-start mb-sm">
                 <div>
-                  <p className="label-mono text-on-surface-variant tracking-wider uppercase mb-0.5 text-[10px]">
-                    {zone.code}
-                  </p>
                   <h5 className="title-md text-on-surface">{zone.name}</h5>
                 </div>
                 {/* Toggle */}
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
-                    defaultChecked={zone.status !== "inactive"}
+                    defaultChecked={zone.utilization > 0}
                     className="sr-only peer"
                     onChange={() => {
                       setToastMsg(`Zone ${zone.name} toggled`);
@@ -314,35 +195,6 @@ export default function ZonesPage() {
                       ? "Moderate"
                       : "High Utilization"}
                 </p>
-              </div>
-
-              {/* Multiplier & Demand */}
-              <div className="grid grid-cols-2 gap-sm pt-sm border-t border-outline-variant/30">
-                <div>
-                  <p className="label-mono text-on-surface-variant uppercase text-[10px]">
-                    Multiplier
-                  </p>
-                  <p className="title-md text-primary font-bold">
-                    {zone.multiplier.toFixed(1)}x
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="label-mono text-on-surface-variant uppercase text-[10px]">
-                    Demand
-                  </p>
-                  <p
-                    className={clsx(
-                      "title-md font-bold",
-                      zone.demand === "high"
-                        ? "text-error"
-                        : zone.demand === "medium"
-                          ? "text-secondary"
-                          : "text-on-surface-variant"
-                    )}
-                  >
-                    {zone.demand.charAt(0).toUpperCase() + zone.demand.slice(1)}
-                  </p>
-                </div>
               </div>
             </div>
 
@@ -439,85 +291,13 @@ export default function ZonesPage() {
 /* Fallback demo data when API is unavailable */
 function getDemoZones(): ZoneInfo[] {
   return [
-    {
-      id: "zone-sj-01",
-      name: "South Jakarta",
-      code: "ZONE-SJ-01",
-      utilization: 78,
-      status: "active",
-      multiplier: 1.2,
-      demand: "medium",
-      surge_threshold: 85,
-    },
-    {
-      id: "zone-ch-04",
-      name: "Central Hub",
-      code: "ZONE-CH-04",
-      utilization: 94,
-      status: "peak",
-      multiplier: 2.4,
-      demand: "high",
-      surge_threshold: 80,
-    },
-    {
-      id: "zone-wh-12",
-      name: "West Harbor",
-      code: "ZONE-WH-12",
-      utilization: 22,
-      status: "inactive",
-      multiplier: 1.0,
-      demand: "low",
-      surge_threshold: 90,
-    },
-    {
-      id: "zone-ni-09",
-      name: "North Industrial",
-      code: "ZONE-NI-09",
-      utilization: 45,
-      status: "active",
-      multiplier: 1.1,
-      demand: "low",
-      surge_threshold: 85,
-    },
-    {
-      id: "zone-ap-03",
-      name: "Airport Terminal 1",
-      code: "ZONE-AP-03",
-      utilization: 88,
-      status: "peak",
-      multiplier: 1.8,
-      demand: "high",
-      surge_threshold: 75,
-    },
-    {
-      id: "zone-cbd-07",
-      name: "Downtown Core",
-      code: "ZONE-CBD-07",
-      utilization: 65,
-      status: "active",
-      multiplier: 1.5,
-      demand: "medium",
-      surge_threshold: 80,
-    },
-    {
-      id: "zone-er-15",
-      name: "East Riverside",
-      code: "ZONE-ER-15",
-      utilization: 35,
-      status: "active",
-      multiplier: 1.05,
-      demand: "low",
-      surge_threshold: 90,
-    },
-    {
-      id: "zone-sp-22",
-      name: "South Port",
-      code: "ZONE-SP-22",
-      utilization: 52,
-      status: "active",
-      multiplier: 1.3,
-      demand: "medium",
-      surge_threshold: 85,
-    },
+    { name: "south-jakarta", utilization: 78 },
+    { name: "central-hub", utilization: 94 },
+    { name: "west-harbor", utilization: 22 },
+    { name: "north-industrial", utilization: 45 },
+    { name: "airport-terminal-1", utilization: 88 },
+    { name: "downtown-core", utilization: 65 },
+    { name: "east-riverside", utilization: 35 },
+    { name: "south-port", utilization: 52 },
   ];
 }

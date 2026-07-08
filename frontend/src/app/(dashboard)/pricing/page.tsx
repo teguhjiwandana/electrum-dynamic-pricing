@@ -5,8 +5,8 @@ import { calculatePricing, PricingResult, PricingParams } from "@/lib/api";
 import { clsx } from "clsx";
 
 export default function PricingPage() {
-  const [vehicleId, setVehicleId] = useState("EV-7729-ALPHA");
-  const [zone, setZone] = useState("central-business-district");
+  const [vehicleId, setVehicleId] = useState("EV-10001");
+  const [zone, setZone] = useState("south-jakarta");
   const [duration, setDuration] = useState("12");
   const [result, setResult] = useState<PricingResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -20,7 +20,7 @@ export default function PricingPage() {
     const params: PricingParams = {
       vehicle_id: vehicleId,
       zone,
-      duration_hours: parseFloat(duration) || 0,
+      duration_hours: parseInt(duration) || 1,
     };
 
     const res = await calculatePricing(params);
@@ -73,7 +73,7 @@ export default function PricingPage() {
           <p className="label-mono text-on-surface-variant uppercase mb-xs">
             Base Rate
           </p>
-          <p className="headline-lg text-primary">$14.50</p>
+          <p className="headline-lg text-primary">Rp 14.50</p>
           <p className="body-sm text-on-surface-variant mt-xs">Per hour</p>
         </div>
         <div className="card-elevation rounded-xl p-lg metric-accent-tertiary">
@@ -145,6 +145,9 @@ export default function PricingPage() {
                   onChange={(e) => setZone(e.target.value)}
                   className="input-field bg-white"
                 >
+                  <option value="south-jakarta">
+                    South Jakarta
+                  </option>
                   <option value="central-business-district">
                     Central Business District (High Traffic)
                   </option>
@@ -169,8 +172,8 @@ export default function PricingPage() {
                 <input
                   id="duration"
                   type="number"
-                  min="0.5"
-                  step="0.5"
+                  min="1"
+                  step="1"
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
                   className="input-field"
@@ -307,7 +310,7 @@ export default function PricingPage() {
                         Base Rate
                       </p>
                       <p className="headline-lg">
-                        ${result.base_rate.toFixed(2)}
+                        Rp {result.breakdown.base_rate_per_hour.toFixed(2)}
                         <span className="body-sm text-on-surface-variant font-normal">
                           /hr
                         </span>
@@ -337,7 +340,7 @@ export default function PricingPage() {
                         Demand Multiplier
                       </p>
                       <p className="headline-lg">
-                        {result.demand_multiplier.toFixed(2)}x
+                        {result.breakdown.demand_multiplier.toFixed(2)}x
                       </p>
                     </div>
                     <svg
@@ -364,7 +367,7 @@ export default function PricingPage() {
                         Zone Surge
                       </p>
                       <p className="headline-lg">
-                        +${result.zone_surge.toFixed(2)}
+                        {result.breakdown.zone_surge_factor.toFixed(2)}x
                       </p>
                     </div>
                     <svg
@@ -391,7 +394,7 @@ export default function PricingPage() {
                         Battery Rebate
                       </p>
                       <p className="headline-lg text-secondary">
-                        -{Math.abs(result.battery_discount).toFixed(0)}%
+                        -{Math.abs(result.breakdown.battery_discount_factor).toFixed(2)}
                       </p>
                     </div>
                     <svg
@@ -430,7 +433,7 @@ export default function PricingPage() {
                       className="display-lg text-primary"
                       style={{ fontFamily: "'JetBrains Mono', monospace" }}
                     >
-                      ${result.total_price.toFixed(2)}
+                      Rp {result.total_price.toFixed(2)}
                     </p>
                   </div>
                   <div className="text-right">
@@ -438,11 +441,12 @@ export default function PricingPage() {
                       Savings Applied
                     </p>
                     <p className="title-md text-secondary">
-                      -$
+                      Rp{" "}
                       {(
-                        result.base_rate *
-                          result.duration_hours *
-                          (Math.abs(result.battery_discount) / 100)
+                        result.breakdown.base_rate_per_hour *
+                        result.duration_hours *
+                        (1 - result.breakdown.battery_discount_factor) *
+                        (result.breakdown.demand_multiplier + result.breakdown.zone_surge_factor - 1)
                       ).toFixed(2)}
                     </p>
                   </div>
