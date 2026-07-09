@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
 import {
-  LayoutDashboard,
   Calculator,
   History,
   Settings,
@@ -55,19 +54,6 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 space-y-xs custom-scrollbar overflow-y-auto">
-        <Link
-          href="/pricing"
-          className={clsx(
-            "flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200",
-            pathname === "/pricing"
-              ? "text-on-primary bg-primary-container font-semibold"
-              : "text-on-surface-variant hover:bg-surface-container-high"
-          )}
-        >
-          <LayoutDashboard size={20} />
-          <span className="body-md">Dashboard</span>
-        </Link>
-
         {navItems.map((item) => {
           const isActive =
             pathname === item.href || pathname.startsWith(item.href + "/");
