@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
 import {
@@ -20,15 +21,13 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [username, setUsername] = useState("User");
+  const [role, setRole] = useState("viewer");
 
-  const username =
-    typeof window !== "undefined"
-      ? localStorage.getItem("auth_username") || "User"
-      : "User";
-  const role =
-    typeof window !== "undefined"
-      ? localStorage.getItem("auth_role") || "viewer"
-      : "viewer";
+  useEffect(() => {
+    setUsername(localStorage.getItem("auth_username") || "User");
+    setRole(localStorage.getItem("auth_role") || "viewer");
+  }, []);
 
   const initials = username
     .split(" ")
